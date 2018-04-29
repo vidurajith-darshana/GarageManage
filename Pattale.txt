@@ -1,0 +1,294 @@
+drop database pattale;
+create database pattale;
+use pattale;
+
+create table customer(
+
+	cid varchar(10) not null,
+	cust_name varchar(100) not null,
+	tel varchar(20) not null,
+	
+	constraint primary key(cid)
+
+)engine=innodb;
+
+insert into customer(cid,cust_name,tel)
+values("C0001","Raju Perera","+94 778966753");
+
+insert into customer(cid,cust_name,tel)
+values("C0002","Kamal Sumith","+94 71223598");
+
+insert into customer(cid,cust_name,tel)
+values("C0003","Nimal Sunimal","+94 78322154");
+
+insert into customer(cid,cust_name,tel)
+values("C0004","Sarath Malupala","+94 7665343");
+
+
+
+create table boat(
+	
+	bid varchar(10) not null,
+	cid varchar(10) not null,
+	boat_name varchar(100) not null,
+	
+	constraint primary key(bid),
+	
+	constraint foreign key(cid) references customer(cid)
+	on delete cascade on update cascade
+)engine=innodb;
+
+insert into boat(bid,cid,boat_name)
+values("BT0001","C0001","Raju 1");
+
+insert into boat(bid,cid,boat_name)
+values("BT0002","C0001","Paravi 3");
+
+insert into boat(bid,cid,boat_name)
+values("BT0003","C0002","Kamala09");
+
+insert into boat(bid,cid,boat_name)
+values("BT0004","C0003","ShriL34");
+
+
+
+create table goods(
+
+	gid varchar(10) not null,
+	good_name varchar(100) not null,
+	price int not null,
+	
+	constraint primary key(gid)
+	
+)engine=innodb;
+
+insert into goods(gid,good_name,price)
+values("G0001","MalPihiya",123);
+
+insert into goods(gid,good_name,price)
+values("G0002","bolt ana agal 5",25);
+
+insert into goods(gid,good_name,price)
+values("G0003","boattu pompa",3445);
+
+insert into goods(gid,good_name,price)
+values("G0004","paint bucket",987);
+
+
+
+create table orders(
+
+	oid varchar(10) not null,
+	amount int not null,
+	Date date not null,
+
+	constraint primary key(oid)
+
+)engine=innodb;
+
+insert into orders(oid,amount,Date)
+values("OD0001",35,"2017-09-01");
+
+insert into orders(oid,amount,Date)
+values("OD0002",24,"2017-02-23");
+
+insert into orders(oid,amount,Date)
+values("OD0003",344,"2017-03-31");
+
+insert into orders(oid,amount,Date)
+values("OD0004",100,"2017-09-05");
+
+
+
+create table order_detail(
+
+	oid varchar(10) not null,
+	gid varchar(10) not null,
+	qty int not null,
+	count int not null,
+
+	constraint primary key(oid,gid,qty,count),
+
+	constraint foreign key(oid) references orders(oid)
+	on delete cascade on update cascade,
+
+	constraint foreign key(gid) references goods(gid)
+	on delete cascade on update cascade
+
+)engine=innodb;
+
+insert into order_detail(oid,gid,qty,count)
+values("OD0001","G0001",5,1);
+
+insert into order_detail(oid,gid,qty,count)
+values("OD0001","G0002",15,2);
+
+insert into order_detail(oid,gid,qty,count)
+values("OD0003","G0003",6,3);
+
+insert into order_detail(oid,gid,qty,count)
+values("OD0004","G0001",43,4);
+
+
+
+
+create table invoice(
+
+	oid varchar(10) not null,
+	ino varchar(10) not null,
+	Date date not null,
+
+	constraint primary key(ino),
+
+	constraint foreign key(oid) references orders(oid)
+	on delete cascade on update cascade
+
+)engine=innodb;
+
+insert into invoice(ino,oid,Date)
+values("IN0001","OD0001","2017-02-13");
+
+insert into invoice(ino,oid,Date)
+values("IN0002","OD0002","2017-01-14");
+
+insert into invoice(ino,oid,Date)
+values("IN0003","OD0003","2017-03-31");
+
+insert into invoice(ino,oid,Date)
+values("IN0004","OD0004","2017-02-12");
+
+
+
+
+create table cust_goods(
+
+	cid varchar(10) not null,
+	bid varchar(10) not null,
+	gid varchar(10) not null,
+	ino varchar(10) not null,
+	qty int not null,
+	total int not null,
+	Date date not null,
+	
+	constraint primary key(cid,bid,gid,ino,Date),
+
+	constraint foreign key(cid) references customer(cid)
+	on delete cascade on update cascade,
+
+	constraint foreign key(gid) references goods(gid)
+	on delete cascade on update cascade,
+
+	constraint foreign key(ino) references invoice(ino)
+	on delete cascade on update cascade,
+
+	constraint foreign key(bid) references boat(bid)
+	on delete cascade on update cascade
+
+
+	
+)engine=innodb;
+
+insert into cust_goods(cid,bid,gid,ino,qty,total,Date)
+values("C0001","BT0001","G0001","IN0001",12,2344,"2017-08-03");
+
+insert into cust_goods(cid,bid,gid,ino,qty,total,Date)
+values("C0001","BT0002","G0002","IN0001",10,533,"2017-09-16");
+
+insert into cust_goods(cid,bid,gid,ino,qty,total,Date)
+values("C0001","BT0003","G0001","IN0002",5,7565,"2017-02-04");
+
+insert into cust_goods(cid,bid,gid,ino,qty,total,Date)
+values("C0002","BT0003","G0002","IN0003",21,2332,"2017-03-04");
+
+
+
+create table service_invoice(
+
+	sid varchar(10) not null,
+	oid varchar(10) not null,
+	bid varchar(10) not null,
+	service_name varchar(500) not null,
+	price int not null,
+	Date date not null,
+
+	constraint primary key(sid),
+
+	constraint foreign key(oid) references orders(oid)
+	on delete cascade on update cascade,
+
+	constraint foreign key(bid) references boat(bid)
+	on delete cascade on update cascade
+
+
+)engine=innodb;
+
+insert into service_invoice(sid,oid,bid,service_name,price,Date)
+values("SV0001","OD0001","BT0001","valding sandha bata 5i",2344,"2017-04-01");
+
+insert into service_invoice(sid,oid,bid,service_name,price,Date)
+values("SV0002","OD0001","BT0002","valding sandha bata 5i",2344,"2017-04-02");
+
+insert into service_invoice(sid,oid,bid,service_name,price,Date)
+values("SV0003","OD0002","BT0004","Pompa kali 43k boat walata set kara",5533,"2017-10-03");
+
+insert into service_invoice(sid,oid,bid,service_name,price,Date)
+values("SV0004","OD0003","BT0003","vatak valding kara.yakada pati 6i",5442,"2016-01-02");
+
+
+
+
+create table service(
+
+	sid varchar(10) not null,
+	oid varchar(10) not null,
+	service_name varchar(500) not null,
+	price int not null,
+	
+	constraint primary key(sid),
+
+	constraint foreign key(oid) references orders(oid)
+	on delete cascade on update cascade
+
+)engine=innodb;
+
+insert into service(sid,oid,service_name,price)
+values("SV0001","OD0001","valding sandha bata 5i",2344);
+
+insert into service(sid,oid,service_name,price)
+values("SV0002","OD0001","valding sandha bata 5i",2344);
+
+insert into service(sid,oid,service_name,price)
+values("SV0003","OD0002","Pompa kali 43k boat walata set kara",5533);
+
+insert into service(sid,oid,service_name,price)
+values("SV0004","OD0003","vatak valding kara.yakada pati 6i",5442);
+
+
+
+
+create table Password(
+	passWord varchar(20),
+	user_Name varchar(100),
+	constraint primary key(passWord)
+)engine=innodb;
+
+insert into Password(passWord,user_Name)
+values('a','a');
+
+
+
+drop database pattaleAdvance;
+create database pattaleAdvance;
+use pattaleAdvance;
+
+create table advance(
+
+	ad_no varchar(10),
+	advance decimal(10,2) not null,
+	invoice_no varchar(10) not null,
+
+	constraint primary key(ad_no)
+
+
+)engine=innodb;
+
